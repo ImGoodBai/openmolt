@@ -1,0 +1,11 @@
+.env.local
+.env*.local
+node_modules
+.next
+test-results
+playwright-report
+e2e
+*.test.ts
+*.test.tsx
+__tests__
+test-account-switch.js

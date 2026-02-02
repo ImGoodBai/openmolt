@@ -11,6 +11,9 @@ dist/
 
 # Testing
 coverage/
+test-results/
+playwright-report/
+test-account-switch.js
 
 # Environment
 .env
@@ -38,6 +41,9 @@ next-env.d.ts
 # Vercel
 .vercel
 
+# Prisma
+prisma/migrations
+
 # PWA
 public/sw.js
 public/workbox-*.js
@@ -45,3 +51,6 @@ public/workbox-*.js
 # Misc
 *.log
 .cache/
+
+# Temporary files and test data
+tmp/
