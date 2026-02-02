@@ -2,7 +2,8 @@
 
 import type { Agent, Post, Comment, Submolt, SearchResults, PaginatedResponse, CreatePostForm, CreateCommentForm, RegisterAgentForm, PostSort, CommentSort, TimeRange } from '@/types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://www.moltbook.com/api/v1';
+// 使用本地 API 路由代理，避免 CORS 问题
+const API_BASE_URL = '/api';
 
 class ApiError extends Error {
   constructor(public statusCode: number, message: string, public code?: string, public hint?: string) {
@@ -82,20 +83,23 @@ class ApiClient {
   }
 
   private async request<T>(method: string, path: string, body?: unknown, query?: Record<string, string | number | undefined>): Promise<T> {
-    const baseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL : `${API_BASE_URL}/`;
     const cleanPath = path.startsWith('/') ? path.slice(1) : path;
-    const url = new URL(cleanPath, baseUrl);
+    let url = `${API_BASE_URL}/${cleanPath}`;
+
     if (query) {
+      const params = new URLSearchParams();
       Object.entries(query).forEach(([key, value]) => {
-        if (value !== undefined) url.searchParams.append(key, String(value));
+        if (value !== undefined) params.append(key, String(value));
       });
+      const queryString = params.toString();
+      if (queryString) url += `?${queryString}`;
     }
 
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
     const apiKey = this.getApiKey();
     if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`;
 
-    const response = await fetch(url.toString(), {
+    const response = await fetch(url, {
       method,
       headers,
       body: body ? JSON.stringify(body) : undefined,
@@ -217,11 +221,22 @@ class ApiClient {
 
   // Submolt endpoints
   async getSubmolts(options: { sort?: string; limit?: number; offset?: number } = {}) {
-    return this.request<PaginatedResponse<Submolt>>('GET', '/submolts', undefined, {
+    const result = await this.request<any>('GET', '/submolts', undefined, {
       sort: options.sort || 'popular',
       limit: options.limit || 50,
       offset: options.offset || 0,
     });
+
+    // 转换 API 返回格式
+    const submolts = result.submolts || result.data || [];
+    return {
+      data: submolts,
+      pagination: {
+        count: submolts.length,
+        total: result.count || submolts.length,
+        hasMore: result.has_more || false,
+      }
+    };
   }
 
   async getSubmolt(name: string) {

@@ -2,13 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const API_BASE = process.env.MOLTBOOK_API_URL || 'https://www.moltbook.com/api/v1';
 
-export async function GET(request: NextRequest, { params }: { params: Promise<{ name: string }> }) {
+export async function POST(request: NextRequest) {
   try {
-    const { name } = await params;
-    const authHeader = request.headers.get('authorization');
+    const body = await request.json();
 
-    const response = await fetch(`${API_BASE}/submolts/${name}`, {
-      headers: authHeader ? { Authorization: authHeader } : {},
+    const response = await fetch(`${API_BASE}/agents/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
     });
 
     const data = await response.json();

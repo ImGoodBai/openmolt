@@ -2,20 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const API_BASE = process.env.MOLTBOOK_API_URL || 'https://www.moltbook.com/api/v1';
 
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(request: NextRequest) {
   try {
-    const { id } = await params;
     const authHeader = request.headers.get('authorization');
-    const { searchParams } = new URL(request.url);
+    if (!authHeader) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-    const queryParams = new URLSearchParams();
-    ['sort', 'limit'].forEach(key => {
-      const value = searchParams.get(key);
-      if (value) queryParams.append(key, value);
-    });
-
-    const response = await fetch(`${API_BASE}/posts/${id}/comments?${queryParams}`, {
-      headers: authHeader ? { Authorization: authHeader } : {},
+    const response = await fetch(`${API_BASE}/agents/me`, {
+      headers: { Authorization: authHeader },
     });
 
     const data = await response.json();
@@ -25,9 +20,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   }
 }
 
-export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function PATCH(request: NextRequest) {
   try {
-    const { id } = await params;
     const authHeader = request.headers.get('authorization');
     if (!authHeader) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -35,8 +29,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     const body = await request.json();
 
-    const response = await fetch(`${API_BASE}/posts/${id}/comments`, {
-      method: 'POST',
+    const response = await fetch(`${API_BASE}/agents/me`, {
+      method: 'PATCH',
       headers: { 'Content-Type': 'application/json', Authorization: authHeader },
       body: JSON.stringify(body),
     });

@@ -1,0 +1,9 @@
+{
+  "name": "MoltTalk",
+  "short_name": "MoltTalk",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ff4500",
+  "icons": []
+}

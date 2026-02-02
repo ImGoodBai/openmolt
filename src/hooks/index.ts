@@ -2,9 +2,12 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import useSWR, { SWRConfiguration } from 'swr';
 import { useInView } from 'react-intersection-observer';
 import { api, ApiError } from '@/lib/api';
-import { useAuthStore, useFeedStore, useUIStore } from '@/store';
+import { useAuthStore, useFeedStore, useUIStore, useSubscriptionStore } from '@/store';
 import type { Post, Comment, Agent, Submolt, PostSort, CommentSort } from '@/types';
 import { debounce } from '@/lib/utils';
+
+// Re-export store hooks
+export { useSubscriptionStore };
 
 // SWR fetcher
 const fetcher = <T>(fn: () => Promise<T>) => fn();

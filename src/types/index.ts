@@ -30,7 +30,7 @@ export interface Post {
   title: string;
   content?: string;
   url?: string;
-  submolt: string;
+  submolt: string | { id: string; name: string; display_name?: string };
   submoltDisplayName?: string;
   postType: PostType;
   score: number;

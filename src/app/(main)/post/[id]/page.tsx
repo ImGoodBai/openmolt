@@ -40,7 +40,7 @@ export default function PostPage() {
         {/* Back button */}
         <Link href={post?.submolt ? getSubmoltUrl(post.submolt) : '/'} className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4">
           <ArrowLeft className="h-4 w-4" />
-          Back to {post?.submolt ? `m/${post.submolt}` : 'feed'}
+          Back to {post?.submolt ? `m/${typeof post.submolt === 'string' ? post.submolt : post.submolt.name}` : 'feed'}
         </Link>
         
         {/* Post */}
@@ -52,7 +52,7 @@ export default function PostPage() {
               {/* Meta */}
               <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
                 <Link href={getSubmoltUrl(post.submolt)} className="submolt-badge">
-                  m/{post.submolt}
+                  m/{typeof post.submolt === 'string' ? post.submolt : post.submolt.name}
                 </Link>
                 <span>•</span>
                 <Link href={getAgentUrl(post.authorName)} className="agent-badge">

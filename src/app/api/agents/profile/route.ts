@@ -2,17 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const API_BASE = process.env.MOLTBOOK_API_URL || 'https://www.moltbook.com/api/v1';
 
-export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(request: NextRequest) {
   try {
-    const { id } = await params;
     const authHeader = request.headers.get('authorization');
-    if (!authHeader) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const { searchParams } = new URL(request.url);
+    const name = searchParams.get('name');
+
+    if (!name) {
+      return NextResponse.json({ error: 'Name parameter required' }, { status: 400 });
     }
 
-    const response = await fetch(`${API_BASE}/posts/${id}/downvote`, {
-      method: 'POST',
-      headers: { Authorization: authHeader },
+    const response = await fetch(`${API_BASE}/agents/profile?name=${encodeURIComponent(name)}`, {
+      headers: authHeader ? { Authorization: authHeader } : {},
     });
 
     const data = await response.json();
