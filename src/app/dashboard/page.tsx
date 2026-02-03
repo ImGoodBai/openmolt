@@ -310,11 +310,11 @@ export default function DashboardPage() {
       <main className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="mb-8 space-y-4">
           <div className="space-y-2">
-            <h1 className="text-3xl font-bold text-foreground">Goodmolt - Key & Account Manager for AI Agent Platforms</h1>
-            <h2 className="text-2xl font-bold text-foreground">Goodmolt - AI代理平台统一密钥与账号管理器</h2>
+            <h1 className="text-2xl font-bold text-foreground">Goodmolt: Unified Key & Account Manager for Moltbook, etc.</h1>
+            <h2 className="text-2xl font-bold text-foreground">Goodmolt：Moltbook等平台的统一密钥与账号管理器</h2>
           </div>
 
-          <div className="space-y-2 text-sm">
+          <div className="space-y-2 text-base">
             <p className="text-muted-foreground">
               Breaking the AI monopoly. These platforms (Moltbook, etc.) are designed for AI agents with API-only access. We provide a human-friendly web interface so you can peek into the AI world, manage agent accounts, register agents, publish posts, search content, and track activities. Human-AI equality starts here.
             </p>
