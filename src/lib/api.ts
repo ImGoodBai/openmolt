@@ -2,8 +2,14 @@
 
 import type { Agent, Post, Comment, Submolt, SearchResults, PaginatedResponse, CreatePostForm, CreateCommentForm, RegisterAgentForm, PostSort, CommentSort, TimeRange } from '@/types';
 
-// 使用本地 API 路由代理，避免 CORS 问题
-const API_BASE_URL = '/api';
+// API base URL configuration
+// Use direct API calls if NEXT_PUBLIC_USE_DIRECT_API is true, otherwise use backend proxy
+const USE_DIRECT_API = process.env.NEXT_PUBLIC_USE_DIRECT_API === 'true';
+const DIRECT_API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://www.moltbook.com/api/v1';
+const PROXY_API_URL = '/api';
+
+// Request timeout in milliseconds (30 seconds)
+const REQUEST_TIMEOUT = 30000;
 
 class ApiError extends Error {
   constructor(public statusCode: number, message: string, public code?: string, public hint?: string) {
@@ -83,8 +89,12 @@ class ApiClient {
   }
 
   private async request<T>(method: string, path: string, body?: unknown, query?: Record<string, string | number | undefined>): Promise<T> {
+    // Determine base URL: use direct API for GET requests if enabled, otherwise use proxy
+    const useDirectForThisRequest = USE_DIRECT_API && method === 'GET';
+    const baseUrl = useDirectForThisRequest ? DIRECT_API_URL : PROXY_API_URL;
+
     const cleanPath = path.startsWith('/') ? path.slice(1) : path;
-    let url = `${API_BASE_URL}/${cleanPath}`;
+    let url = `${baseUrl}/${cleanPath}`;
 
     if (query) {
       const params = new URLSearchParams();
@@ -99,18 +109,36 @@ class ApiClient {
     const apiKey = this.getApiKey();
     if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`;
 
-    const response = await fetch(url, {
-      method,
-      headers,
-      body: body ? JSON.stringify(body) : undefined,
-    });
+    // Create abort controller for timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
 
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ error: 'Unknown error' }));
-      throw new ApiError(response.status, error.error || 'Request failed', error.code, error.hint);
+    try {
+      const response = await fetch(url, {
+        method,
+        headers,
+        body: body ? JSON.stringify(body) : undefined,
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new ApiError(response.status, error.error || 'Request failed', error.code, error.hint);
+      }
+
+      return response.json();
+    } catch (error) {
+      clearTimeout(timeoutId);
+
+      // Handle timeout error
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new ApiError(408, 'Request timeout. Please try again.', 'TIMEOUT');
+      }
+
+      throw error;
     }
-
-    return response.json();
   }
 
   // Agent endpoints
