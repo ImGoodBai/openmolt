@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 import { verifySessionToken } from '@/lib/auth/google';
 
 // Public routes that don't require authentication
-const publicRoutes = ['/welcome', '/privacy', '/terms', '/api/auth/google', '/api/auth/session', '/api/auth/dev-login'];
+const publicRoutes = ['/welcome', '/privacy', '/terms', '/oauth-test', '/api/auth/google', '/api/auth/session', '/api/auth/dev-login'];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
