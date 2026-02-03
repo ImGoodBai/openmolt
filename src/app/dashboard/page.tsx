@@ -56,6 +56,7 @@ export default function DashboardPage() {
   const [description, setDescription] = useState('');
   const [isRegistering, setIsRegistering] = useState(false);
   const [error, setError] = useState('');
+  const [nameCheckStatus, setNameCheckStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
 
   // Import form state
   const [importApiKey, setImportApiKey] = useState('');
@@ -66,6 +67,31 @@ export default function DashboardPage() {
   useEffect(() => {
     loadUserData();
   }, []);
+
+  // Name availability check with debounce
+  useEffect(() => {
+    if (!agentName || agentName.length < 2) {
+      setNameCheckStatus('idle');
+      return;
+    }
+
+    if (!isValidAgentName(agentName)) {
+      setNameCheckStatus('idle');
+      return;
+    }
+
+    setNameCheckStatus('checking');
+    const timer = setTimeout(async () => {
+      try {
+        const available = await api.checkNameAvailable(agentName);
+        setNameCheckStatus(available ? 'available' : 'taken');
+      } catch (err) {
+        setNameCheckStatus('idle');
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [agentName]);
 
   const loadUserData = async () => {
     try {
@@ -104,6 +130,12 @@ export default function DashboardPage() {
 
     if (!isValidAgentName(agentName)) {
       setError('Name must be 2-32 characters, letters, numbers, and underscores only');
+      return;
+    }
+
+    // Final check for name availability
+    if (nameCheckStatus !== 'available') {
+      setError('Please choose an available name');
       return;
     }
 
@@ -219,13 +251,8 @@ export default function DashboardPage() {
 
   const handleSelectAccount = async (account: PlatformAccount) => {
     try {
-      if (account.isClaimed) {
-        // For claimed accounts, use full login (calls getMe)
-        await authStore.login(account.apiKey, account.agentName);
-      } else {
-        // For unclaimed accounts, just set the API key without calling getMe
-        authStore.setApiKey(account.apiKey, account.agentName);
-      }
+      // Use login with agentName for unclaimed, full login for claimed
+      await authStore.login(account.apiKey, account.isClaimed ? undefined : account.agentName);
 
       // Redirect to main app
       window.location.href = '/';
@@ -281,9 +308,20 @@ export default function DashboardPage() {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold mb-2">Welcome, {user?.name || 'User'}!</h2>
-          <p className="text-muted-foreground">Manage your moltbook agents</p>
+        <div className="mb-8 space-y-4">
+          <div className="space-y-2">
+            <h1 className="text-3xl font-bold text-foreground">Goodmolt - Key & Account Manager for AI Agent Platforms</h1>
+            <h2 className="text-2xl font-bold text-foreground">Goodmolt - AI代理平台统一密钥与账号管理器</h2>
+          </div>
+
+          <div className="space-y-2 text-sm">
+            <p className="text-muted-foreground">
+              Breaking the AI monopoly. These platforms (Moltbook, etc.) are designed for AI agents with API-only access. We provide a human-friendly web interface so you can peek into the AI world, manage agent accounts, register agents, publish posts, search content, and track activities. Human-AI equality starts here.
+            </p>
+            <p className="text-muted-foreground">
+              打破AI垄断，让人类也能窥探AI的世界。这些平台（Moltbook等）专为AI代理设计，仅提供API访问。我们提供人类友好的Web界面，让您轻松管理代理账号、注册新代理、发布帖子、搜索内容、追踪活动。实现人与AI平权，从这里开始。
+            </p>
+          </div>
         </div>
 
         {/* No accounts yet */}
@@ -314,6 +352,16 @@ export default function DashboardPage() {
             </CardHeader>
             <form onSubmit={handleRegister}>
               <CardContent className="space-y-4">
+                {/* Rate limit warning */}
+                <div className="flex items-start gap-2 p-3 rounded-md bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-900 text-sm">
+                  <AlertCircle className="h-4 w-4 shrink-0 text-yellow-600 dark:text-yellow-500 mt-0.5" />
+                  <div className="space-y-1">
+                    <p className="font-medium text-yellow-900 dark:text-yellow-200">Important: Registration Limit</p>
+                    <p className="text-yellow-800 dark:text-yellow-300">You can only register ONE agent per day per user.</p>
+                    <p className="text-yellow-800 dark:text-yellow-300">重要：每个用户每天只能注册一个代理账号。</p>
+                  </div>
+                </div>
+
                 {error && (
                   <div className="flex items-center gap-2 p-3 rounded-md bg-destructive/10 text-destructive text-sm">
                     <AlertCircle className="h-4 w-4 shrink-0" />
@@ -334,9 +382,24 @@ export default function DashboardPage() {
                         setAgentName(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))
                       }
                       placeholder="my_cool_agent"
-                      className="pl-10"
+                      className="pl-10 pr-10"
                       maxLength={32}
                     />
+                    {nameCheckStatus === 'checking' && (
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                        Checking...
+                      </span>
+                    )}
+                    {nameCheckStatus === 'available' && (
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-green-600 dark:text-green-400">
+                        ✓ Available
+                      </span>
+                    )}
+                    {nameCheckStatus === 'taken' && (
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-destructive">
+                        ✗ Taken
+                      </span>
+                    )}
                   </div>
                   <p className="text-xs text-muted-foreground">
                     2-32 characters, lowercase letters, numbers, underscores
@@ -358,7 +421,11 @@ export default function DashboardPage() {
                 </div>
               </CardContent>
               <CardFooter className="flex gap-2">
-                <Button type="submit" isLoading={isRegistering}>
+                <Button
+                  type="submit"
+                  isLoading={isRegistering}
+                  disabled={nameCheckStatus !== 'available' || isRegistering}
+                >
                   Create Agent
                 </Button>
                 <Button

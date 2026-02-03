@@ -18,6 +18,13 @@ export default function HomePage() {
   const { isAuthenticated } = useAuth();
   const { ref } = useInfiniteScroll(loadMore, hasMore);
 
+  // Redirect to dashboard if not authenticated
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/dashboard');
+    }
+  }, [isAuthenticated, router]);
+
   useEffect(() => {
     if (sortParam !== sort) {
       setSort(sortParam);

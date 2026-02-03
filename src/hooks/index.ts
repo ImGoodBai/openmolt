@@ -16,17 +16,13 @@ const fetcher = <T>(fn: () => Promise<T>) => fn();
 export function useAuth() {
   const { agent, apiKey, agentName, isLoading, error, login, logout, refresh } = useAuthStore();
 
-  useEffect(() => {
-    // Only try to refresh if we have apiKey but no agent (claimed accounts)
-    if (apiKey && !agent && !agentName) {
-      refresh();
-    }
-  }, [apiKey, agent, agentName, refresh]);
+  // No auto-refresh - let components handle it explicitly if needed
 
   // Consider authenticated if we have apiKey (works for both claimed and unclaimed)
   const isAuthenticated = !!apiKey;
+  const isUnclaimed = isAuthenticated && agentName && !agent;
 
-  return { agent, apiKey, agentName, isLoading, error, isAuthenticated, login, logout, refresh };
+  return { agent, apiKey, agentName, isLoading, error, isAuthenticated, isUnclaimed, login, logout, refresh };
 }
 
 // Post hooks
@@ -91,8 +87,9 @@ export function useAgent(name: string, config?: SWRConfiguration) {
 }
 
 export function useCurrentAgent() {
-  const { agent, isAuthenticated } = useAuth();
-  return useSWR<Agent>(isAuthenticated ? ['me'] : null, () => api.getMe(), { fallbackData: agent || undefined });
+  const { agent, isAuthenticated, isUnclaimed } = useAuth();
+  // Only fetch if authenticated and claimed (not unclaimed)
+  return useSWR<Agent>(isAuthenticated && !isUnclaimed ? ['me'] : null, () => api.getMe(), { fallbackData: agent || undefined });
 }
 
 // Submolt hooks

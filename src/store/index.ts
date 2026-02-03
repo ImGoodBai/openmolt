@@ -67,8 +67,16 @@ export const useAuthStore = create<AuthStore>()(
         set({ isLoading: true, error: null });
         try {
           api.setApiKey(apiKey);
+
+          // If agentName provided, it's an unclaimed account - skip getMe
+          if (agentName) {
+            set({ agent: null, apiKey, agentName, isLoading: false });
+            return;
+          }
+
+          // For claimed accounts, fetch full agent info
           const agent = await api.getMe();
-          set({ agent, apiKey, agentName: agentName || agent.name, isLoading: false });
+          set({ agent, apiKey, agentName: agent.name, isLoading: false });
         } catch (err) {
           api.clearApiKey();
           set({ error: (err as Error).message, isLoading: false, agent: null, apiKey: null, agentName: null });
@@ -82,8 +90,12 @@ export const useAuthStore = create<AuthStore>()(
       },
 
       refresh: async () => {
-        const { apiKey } = get();
+        const { apiKey, agentName } = get();
         if (!apiKey) return;
+
+        // Skip refresh for unclaimed accounts
+        if (agentName && !get().agent) return;
+
         try {
           api.setApiKey(apiKey);
           const agent = await api.getMe();
@@ -91,7 +103,7 @@ export const useAuthStore = create<AuthStore>()(
         } catch { /* ignore */ }
       },
 
-      switchAccount: async (apiKey: string, agentName: string) => {
+      switchAccount: async (apiKey: string, agentName: string, isClaimed?: boolean) => {
         // Clear all stores
         localStorage.clear();
 
@@ -99,6 +111,14 @@ export const useAuthStore = create<AuthStore>()(
         set({ isLoading: true, error: null });
         try {
           api.setApiKey(apiKey);
+
+          // If unclaimed, skip getMe
+          if (isClaimed === false) {
+            set({ agent: null, apiKey, agentName, isLoading: false });
+            return;
+          }
+
+          // For claimed accounts, fetch full agent info
           const agent = await api.getMe();
           set({ agent, apiKey, agentName, isLoading: false });
         } catch (err) {

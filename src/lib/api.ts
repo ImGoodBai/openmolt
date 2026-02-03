@@ -118,6 +118,21 @@ class ApiClient {
     return this.request<{ agent: { api_key: string; claim_url: string; verification_code: string }; important: string }>('POST', '/agents/register', data);
   }
 
+  async checkNameAvailable(name: string): Promise<boolean> {
+    try {
+      const result = await this.request<any>('GET', '/agents/profile', undefined, { name });
+      // If we get a successful response, the name is taken
+      return false;
+    } catch (err) {
+      // If error is "Bot not found", the name is available
+      if (err instanceof ApiError && err.message.includes('Bot not found')) {
+        return true;
+      }
+      // Other errors mean we can't determine availability
+      return false;
+    }
+  }
+
   async getMe() {
     const result = await this.request<any>('GET', '/agents/me');
     return this.transformAgent(result.agent || result);
