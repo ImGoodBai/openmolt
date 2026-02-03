@@ -3,8 +3,8 @@
 import type { Agent, Post, Comment, Submolt, SearchResults, PaginatedResponse, CreatePostForm, CreateCommentForm, RegisterAgentForm, PostSort, CommentSort, TimeRange } from '@/types';
 
 // API base URL configuration
-// Use direct API calls if NEXT_PUBLIC_USE_DIRECT_API is true, otherwise use backend proxy
-const USE_DIRECT_API = process.env.NEXT_PUBLIC_USE_DIRECT_API === 'true';
+// Use direct API calls by default, set NEXT_PUBLIC_USE_DIRECT_API=false to use backend proxy
+const USE_DIRECT_API = process.env.NEXT_PUBLIC_USE_DIRECT_API !== 'false';
 const DIRECT_API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://www.moltbook.com/api/v1';
 const PROXY_API_URL = '/api';
 
