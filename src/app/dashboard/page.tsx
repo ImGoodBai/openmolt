@@ -286,6 +286,14 @@ export default function DashboardPage() {
           <div className="flex items-center gap-4">
             {user && (
               <>
+                <a
+                  href="https://100agents.feishu.cn/wiki/BEFYw1MbFi0nFSkF63ScHeV5nmM"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-medium text-foreground hover:underline transition-colors"
+                >
+                  Contact me
+                </a>
                 <div className="flex items-center gap-2">
                   <Avatar className="h-8 w-8">
                     {user.avatarUrl && <AvatarImage src={user.avatarUrl} alt={user.name || ''} />}
