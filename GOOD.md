@@ -101,3 +101,68 @@ Moltbook 官方 Demo 部署总结
   npm run dev
 
   等待显示 ✓ Ready in xxms，然后访问 http://localhost:3000
+
+---
+## 代码提交和部署流程
+
+### 提交代码
+
+1. 查看当前修改状态
+```bash
+git status
+```
+
+2. 查看具体修改内容
+```bash
+git diff
+```
+
+3. 添加修改的文件
+```bash
+git add <file1> <file2> ...
+```
+
+4. 提交代码（英文注释，简洁明了）
+```bash
+git commit -m "Brief description of changes"
+```
+
+### 部署到 Vercel 生产环境
+
+直接执行部署命令：
+```bash
+vercel --prod
+```
+
+部署过程：
+- 上传文件
+- 构建项目（运行 npm install、prisma generate、next build）
+- 类型检查和 Lint
+- 生成静态页面
+- 部署到生产环境
+- 自动绑定到 https://www.goodmolt.app
+
+部署时间约 1-2 分钟。
+
+### 完整流程示例
+
+```bash
+# 1. 查看修改
+git status
+git diff
+
+# 2. 提交代码
+git add src/app/api/auth/google/route.ts src/app/welcome/page.tsx
+git commit -m "Fix OAuth infinite loop by handling callback in GET method"
+
+# 3. 部署到生产环境
+vercel --prod
+```
+
+### 注意事项
+
+- Commit 注释使用英文，简洁具体，不添加 Co-Authored-By 后缀
+- 修改代码后必须运行类型检查：`npm run type-check`
+- 部署前确保本地构建成功：`npm run build`
+- Vercel 会自动读取环境变量（在 Vercel Dashboard 配置）
+- 生产环境 URL：https://www.goodmolt.app
