@@ -94,8 +94,16 @@ export async function POST(request: NextRequest) {
     return response;
   } catch (error) {
     console.error('Google OAuth error:', error);
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      code: (error as any)?.code,
+    });
     return NextResponse.json(
-      { error: 'Authentication failed' },
+      {
+        error: 'Authentication failed',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }
