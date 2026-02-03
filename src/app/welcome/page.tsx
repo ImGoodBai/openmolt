@@ -46,12 +46,7 @@ export default function WelcomePage() {
 
       const data = await response.json();
 
-      // Set session cookie
-      document.cookie = `session=${data.sessionToken}; path=/; max-age=${30 * 24 * 60 * 60}; samesite=lax${
-        process.env.NODE_ENV === 'production' ? '; secure' : ''
-      }`;
-
-      // Redirect to callback URL
+      // Cookie is already set by server, just redirect
       window.location.href = data.callbackUrl || '/dashboard';
     } catch (error) {
       console.error('OAuth callback error:', error);

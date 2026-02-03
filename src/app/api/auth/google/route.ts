@@ -71,9 +71,9 @@ export async function POST(request: NextRequest) {
       googleId: user.googleId,
     });
 
-    // Return session token and callback URL
-    return NextResponse.json({
-      sessionToken,
+    // Set session cookie (server-side, more reliable than client-side)
+    const response = NextResponse.json({
+      success: true,
       callbackUrl,
       user: {
         id: user.id,
@@ -82,6 +82,16 @@ export async function POST(request: NextRequest) {
         avatarUrl: user.avatarUrl,
       },
     });
+
+    response.cookies.set('session', sessionToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 30 * 24 * 60 * 60, // 30 days
+      path: '/',
+    });
+
+    return response;
   } catch (error) {
     console.error('Google OAuth error:', error);
     return NextResponse.json(

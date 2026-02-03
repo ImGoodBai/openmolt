@@ -1,11 +1,9 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { verifySessionToken } from '@/lib/auth/google';
 
-// Public routes that don't require Google auth
+// Public routes that don't require authentication
 const publicRoutes = ['/welcome', '/api/auth/google', '/api/auth/session', '/api/auth/dev-login'];
-
-// Routes that require Google auth but not moltbook account
-const dashboardRoute = '/dashboard';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -23,32 +21,16 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/welcome', request.url));
   }
 
-  // Verify session and check for accounts
+  // Verify session token
   try {
-    // If accessing dashboard, allow
-    if (pathname === dashboardRoute) {
-      return addSecurityHeaders(NextResponse.next());
-    }
+    const payload = await verifySessionToken(sessionToken);
 
-    // For all other routes, verify user has at least one account
-    const accountsRes = await fetch(new URL('/api/user/accounts', request.url), {
-      headers: {
-        Cookie: `session=${sessionToken}`,
-      },
-    });
-
-    if (!accountsRes.ok) {
+    if (!payload) {
+      // Invalid session -> redirect to welcome
       return NextResponse.redirect(new URL('/welcome', request.url));
     }
 
-    const { accounts } = await accountsRes.json();
-
-    // No accounts -> redirect to dashboard
-    if (!accounts || accounts.length === 0) {
-      return NextResponse.redirect(new URL(dashboardRoute, request.url));
-    }
-
-    // Has accounts -> allow access
+    // Valid session -> allow access
     return addSecurityHeaders(NextResponse.next());
   } catch (error) {
     console.error('Middleware error:', error);
