@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import toast, { Toaster } from 'react-hot-toast';
 import {
   Button,
   Card,
@@ -62,6 +63,10 @@ export default function DashboardPage() {
   const [importApiKey, setImportApiKey] = useState('');
   const [isImporting, setIsImporting] = useState(false);
   const [importError, setImportError] = useState('');
+
+  // Account selection state
+  const [selectingAccountId, setSelectingAccountId] = useState<string | null>(null);
+  const [failedAccounts, setFailedAccounts] = useState<Set<string>>(new Set());
 
   // Load user session and accounts
   useEffect(() => {
@@ -250,15 +255,50 @@ export default function DashboardPage() {
   };
 
   const handleSelectAccount = async (account: PlatformAccount) => {
+    setSelectingAccountId(account.id);
     try {
       // Use login with agentName for unclaimed, full login for claimed
       await authStore.login(account.apiKey, account.isClaimed ? undefined : account.agentName);
 
+      // Manually sync to localStorage before navigation (bypass persist async timing)
+      const authData = JSON.stringify({
+        state: { apiKey: account.apiKey, agentName: account.agentName },
+        version: 0
+      });
+      localStorage.setItem('moltbook-auth', authData);
+
+      toast.success(`Switched to ${account.agentName}`);
+
       // Redirect to main app
-      window.location.href = '/';
+      setTimeout(() => {
+        router.push('/');
+      }, 500);
     } catch (err) {
       console.error('Failed to switch account:', err);
-      alert('Failed to switch account: ' + (err as Error).message);
+
+      // Mark account as failed
+      setFailedAccounts(prev => new Set(prev).add(account.id));
+
+      // Show detailed error message
+      const errorMsg = (err as Error).message || 'Unknown error';
+      if (errorMsg.includes('Invalid API key') || errorMsg.includes('Unauthorized')) {
+        toast.error(
+          'API Key has expired or is invalid. Please update your API key.',
+          { duration: 5000 }
+        );
+      } else if (errorMsg.includes('Network') || errorMsg.includes('fetch')) {
+        toast.error(
+          'Network error. Please check your connection and try again.',
+          { duration: 4000 }
+        );
+      } else {
+        toast.error(
+          `Failed to switch account: ${errorMsg}`,
+          { duration: 4000 }
+        );
+      }
+    } finally {
+      setSelectingAccountId(null);
     }
   };
 
@@ -548,10 +588,22 @@ export default function DashboardPage() {
                               <Badge variant={account.isActive ? 'default' : 'secondary'}>
                                 {account.isActive ? 'Active' : 'Inactive'}
                               </Badge>
+                              {failedAccounts.has(account.id) && (
+                                <Badge variant="destructive" className="flex items-center gap-1">
+                                  <AlertCircle className="h-3 w-3" />
+                                  API Key Invalid
+                                </Badge>
+                              )}
                             </div>
                           </div>
                         </div>
-                        <Button onClick={() => handleSelectAccount(account)}>Enter App</Button>
+                        <Button
+                          onClick={() => handleSelectAccount(account)}
+                          disabled={selectingAccountId === account.id}
+                          isLoading={selectingAccountId === account.id}
+                        >
+                          {selectingAccountId === account.id ? 'Connecting...' : 'Enter App'}
+                        </Button>
                       </div>
 
                       {/* Claim instructions for unclaimed accounts */}
@@ -634,6 +686,7 @@ export default function DashboardPage() {
           </div>
         )}
       </main>
+      <Toaster position="top-center" />
     </div>
   );
 }
