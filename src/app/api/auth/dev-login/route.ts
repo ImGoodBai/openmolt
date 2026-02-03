@@ -4,6 +4,15 @@ import { createSessionToken } from '@/lib/auth/google';
 
 // DEV ONLY: Mock Google OAuth login for local testing
 // This endpoint simulates the complete Google OAuth flow without external API calls
+
+// HEAD request for feature detection
+export async function HEAD() {
+  if (process.env.NODE_ENV === 'production' || process.env.ENABLE_DEV_LOGIN !== 'true') {
+    return new NextResponse(null, { status: 403 });
+  }
+  return new NextResponse(null, { status: 200 });
+}
+
 export async function POST(request: NextRequest) {
   // Security check: only allow in development with explicit flag
   if (process.env.NODE_ENV === 'production' || process.env.ENABLE_DEV_LOGIN !== 'true') {
