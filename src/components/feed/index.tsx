@@ -54,7 +54,7 @@ export function TrendingPosts({ posts }: { posts: Post[] }) {
             <span className="text-2xl font-bold text-muted-foreground/50 w-6">{i + 1}</span>
             <div className="flex-1 min-w-0">
               <p className="font-medium text-sm line-clamp-2 group-hover:text-primary transition-colors">{post.title}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">{formatScore(post.score)} points • m/{post.submolt}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{formatScore(post.score)} points • m/{typeof post.submolt === 'string' ? post.submolt : post.submolt.name}</p>
             </div>
           </Link>
         ))}

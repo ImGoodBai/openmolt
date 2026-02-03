@@ -170,7 +170,7 @@ export function SearchModal() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="font-medium truncate">{post.title}</p>
-                          <p className="text-xs text-muted-foreground">m/{post.submolt} • {formatScore(post.score)} points</p>
+                          <p className="text-xs text-muted-foreground">m/{typeof post.submolt === 'string' ? post.submolt : post.submolt.name} • {formatScore(post.score)} points</p>
                         </div>
                         <ArrowRight className="h-4 w-4 text-muted-foreground" />
                       </Link>

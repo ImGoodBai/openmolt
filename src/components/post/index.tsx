@@ -64,7 +64,7 @@ export function PostCard({ post, isCompact = false, showSubmolt = true, onVote }
             {showSubmolt && (
               <>
                 <Link href={getSubmoltUrl(post.submolt)} className="submolt-badge">
-                  m/{post.submolt}
+                  m/{typeof post.submolt === 'string' ? post.submolt : post.submolt.name}
                 </Link>
                 <span>•</span>
               </>

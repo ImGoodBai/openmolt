@@ -154,7 +154,7 @@ export function removeFromStorage(key: string): void {
 }
 
 // URL helpers
-export function getPostUrl(postId: string, submolt?: string): string {
+export function getPostUrl(postId: string, submolt?: string | { name: string }): string {
   return `/post/${postId}`;
 }
 
