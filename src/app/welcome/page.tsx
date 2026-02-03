@@ -19,41 +19,7 @@ export default function WelcomePage() {
         }
       })
       .catch(() => {});
-
-    // Handle OAuth callback
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get('code');
-    const state = params.get('state');
-
-    if (code) {
-      handleOAuthCallback(code, state);
-    }
   }, []);
-
-  const handleOAuthCallback = async (code: string, state: string | null) => {
-    try {
-      setIsLoading(true);
-
-      const response = await fetch('/api/auth/google', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code, state }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Authentication failed');
-      }
-
-      const data = await response.json();
-
-      // Cookie is already set by server, just redirect
-      window.location.href = data.callbackUrl || '/dashboard';
-    } catch (error) {
-      console.error('OAuth callback error:', error);
-      setIsLoading(false);
-      alert('Authentication failed. Please try again.');
-    }
-  };
 
   const handleGoogleLogin = () => {
     setIsLoading(true);
