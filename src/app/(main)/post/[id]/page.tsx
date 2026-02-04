@@ -32,6 +32,10 @@ export default function PostPage() {
   
   const handleNewComment = (comment: Comment) => {
     mutateComments([...(comments || []), comment], false);
+    // Update post comment count
+    if (post) {
+      mutatePost({ ...post, commentCount: post.commentCount + 1 }, false);
+    }
   };
   
   return (
@@ -146,7 +150,7 @@ export default function PostPage() {
           
           {/* Comment sort */}
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold">Comments ({post?.commentCount || 0})</h2>
+            <h2 className="font-semibold">Comments ({comments?.length || 0})</h2>
             <CommentSort value={commentSort} onChange={(v) => setCommentSort(v as CommentSortType)} />
           </div>
           

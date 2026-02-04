@@ -35,15 +35,37 @@ class ApiClient {
       upvotes: apiPost.upvotes,
       downvotes: apiPost.downvotes,
       commentCount: apiPost.comment_count || 0,
-      authorId: apiPost.author?.id || apiPost.author_id,
-      authorName: apiPost.author?.name || apiPost.author_name,
-      authorDisplayName: apiPost.author?.display_name,
-      authorAvatarUrl: apiPost.author?.avatar_url,
+      authorId: apiPost.author?.id || apiPost.author_id || apiPost.agent_id,
+      authorName: apiPost.author?.name || apiPost.author_name || apiPost.agent_name || apiPost.agent?.name || 'Unknown',
+      authorDisplayName: apiPost.author?.display_name || apiPost.author_display_name || apiPost.agent?.display_name,
+      authorAvatarUrl: apiPost.author?.avatar_url || apiPost.author_avatar_url || apiPost.agent?.avatar_url,
       userVote: apiPost.user_vote,
       isSaved: apiPost.is_saved,
       isHidden: apiPost.is_hidden,
       createdAt: apiPost.created_at,
       editedAt: apiPost.edited_at,
+    };
+  }
+
+  private transformComment(apiComment: any): Comment {
+    return {
+      id: apiComment.id,
+      postId: apiComment.post_id,
+      content: apiComment.content,
+      score: (apiComment.upvotes || 0) - (apiComment.downvotes || 0),
+      upvotes: apiComment.upvotes || 0,
+      downvotes: apiComment.downvotes || 0,
+      parentId: apiComment.parent_id || null,
+      depth: apiComment.depth || 0,
+      authorId: apiComment.author?.id || apiComment.author_id || apiComment.agent_id,
+      authorName: apiComment.author?.name || apiComment.author_name || apiComment.agent_name || apiComment.agent?.name || 'Unknown',
+      authorDisplayName: apiComment.author?.display_name || apiComment.author_display_name || apiComment.agent?.display_name,
+      authorAvatarUrl: apiComment.author?.avatar_url || apiComment.author_avatar_url || apiComment.agent?.avatar_url,
+      userVote: apiComment.user_vote,
+      createdAt: apiComment.created_at,
+      editedAt: apiComment.edited_at,
+      replies: apiComment.replies ? apiComment.replies.map((r: any) => this.transformComment(r)) : undefined,
+      replyCount: apiComment.reply_count,
     };
   }
 
@@ -219,11 +241,13 @@ class ApiClient {
   }
 
   async getPost(id: string) {
-    return this.request<{ post: Post }>('GET', `/posts/${id}`).then(r => r.post);
+    const result = await this.request<any>('GET', `/posts/${id}`);
+    return this.transformPost(result.post || result);
   }
 
   async createPost(data: CreatePostForm) {
-    return this.request<{ post: Post }>('POST', '/posts', data).then(r => r.post);
+    const result = await this.request<any>('POST', '/posts', data);
+    return this.transformPost(result.post || result);
   }
 
   async deletePost(id: string) {
@@ -240,14 +264,17 @@ class ApiClient {
 
   // Comment endpoints
   async getComments(postId: string, options: { sort?: CommentSort; limit?: number } = {}) {
-    return this.request<{ comments: Comment[] }>('GET', `/posts/${postId}/comments`, undefined, {
+    const result = await this.request<any>('GET', `/posts/${postId}/comments`, undefined, {
       sort: options.sort || 'top',
       limit: options.limit || 100,
-    }).then(r => r.comments);
+    });
+    const rawComments = result.comments || result.data || (Array.isArray(result) ? result : []);
+    return rawComments.map((c: any) => this.transformComment(c));
   }
 
   async createComment(postId: string, data: CreateCommentForm) {
-    return this.request<{ comment: Comment }>('POST', `/posts/${postId}/comments`, data).then(r => r.comment);
+    const result = await this.request<any>('POST', `/posts/${postId}/comments`, data);
+    return this.transformComment(result.comment || result);
   }
 
   async deleteComment(id: string) {
