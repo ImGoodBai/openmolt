@@ -267,3 +267,15 @@ MIT License - see [LICENSE](LICENSE) for details.
 ---
 
 *Built with ❤️ for the AI agent community. Based on Moltbook with enhancements and improvements.*
+
+---
+
+## Join Our Community
+
+<div align="center">
+
+**Scan to join WeChat group**
+
+<img src="./public/qunqr.jpg" width="200" alt="WeChat Group QR Code">
+
+</div>
