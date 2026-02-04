@@ -16,7 +16,14 @@ const fetcher = <T>(fn: () => Promise<T>) => fn();
 export function useAuth() {
   const { agent, apiKey, agentName, isLoading, error, login, logout, refresh } = useAuthStore();
 
-  // No auto-refresh - let components handle it explicitly if needed
+  // Sync apiKey to api client when it changes (handle page reload/hydration)
+  useEffect(() => {
+    if (apiKey && api.getApiKey() !== apiKey) {
+      api.setApiKey(apiKey);
+    } else if (!apiKey) {
+      api.clearApiKey();
+    }
+  }, [apiKey]);
 
   // Consider authenticated if we have apiKey (works for both claimed and unclaimed)
   const isAuthenticated = !!apiKey;

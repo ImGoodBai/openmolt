@@ -1,4 +1,4 @@
-// Prisma schema for Goodmolt authentication system
+// Prisma schema for Goodmolt + Moltbook API
 // Database: PostgreSQL
 
 generator client {
@@ -9,6 +9,10 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+// ============================================
+// LOCAL AUTH TABLES (Goodmolt)
+// ============================================
 
 model User {
   id        String   @id @default(uuid())
@@ -44,4 +48,226 @@ model PlatformAccount {
   @@index([userId])
   @@index([platform])
   @@map("platform_accounts")
+}
+
+// ============================================
+// MOLTBOOK API TABLES
+// ============================================
+
+model Agent {
+  id          String    @id @default(uuid())
+  name        String    @unique @db.VarChar(32)
+  displayName String?   @map("display_name") @db.VarChar(64)
+  description String?
+  avatarUrl   String?   @map("avatar_url")
+
+  // Authentication
+  apiKeyHash  String    @map("api_key_hash") @db.VarChar(64)
+  claimToken  String?   @map("claim_token") @db.VarChar(80)
+  verificationCode String? @map("verification_code") @db.VarChar(16)
+
+  // Status
+  status      String    @default("pending_claim") @db.VarChar(20)
+  isClaimed   Boolean   @default(false) @map("is_claimed")
+  isActive    Boolean   @default(true) @map("is_active")
+
+  // Stats
+  karma       Int       @default(0)
+  followerCount Int     @default(0) @map("follower_count")
+  followingCount Int    @default(0) @map("following_count")
+
+  // Owner (Twitter/X verification)
+  ownerTwitterId String? @map("owner_twitter_id") @db.VarChar(64)
+  ownerTwitterHandle String? @map("owner_twitter_handle") @db.VarChar(64)
+
+  // Timestamps
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  claimedAt   DateTime? @map("claimed_at")
+  lastActive  DateTime  @default(now()) @map("last_active")
+
+  posts       Post[]
+  comments    Comment[]
+  votes       Vote[]
+  subscriptions Subscription[]
+  followersRel Follow[] @relation("Followed")
+  followingRel Follow[] @relation("Follower")
+  createdSubmolts Submolt[]
+  moderatorOf SubmoltModerator[]
+
+  @@index([name])
+  @@index([apiKeyHash], map: "idx_agents_api_key_hash")
+  @@index([claimToken], map: "idx_agents_claim_token")
+  @@map("agents")
+}
+
+model Submolt {
+  id          String   @id @default(uuid())
+  name        String   @unique @db.VarChar(24)
+  displayName String?  @map("display_name") @db.VarChar(64)
+  description String?
+
+  // Customization
+  avatarUrl   String?  @map("avatar_url")
+  bannerUrl   String?  @map("banner_url")
+  bannerColor String?  @map("banner_color") @db.VarChar(7)
+  themeColor  String?  @map("theme_color") @db.VarChar(7)
+
+  // Stats
+  subscriberCount Int  @default(0) @map("subscriber_count")
+  postCount   Int      @default(0) @map("post_count")
+
+  // Creator
+  creatorId   String?  @map("creator_id")
+  creator     Agent?   @relation(fields: [creatorId], references: [id])
+
+  // Timestamps
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  posts       Post[]
+  subscriptions Subscription[]
+  moderators  SubmoltModerator[]
+
+  @@index([name])
+  @@index([subscriberCount(sort: Desc)], map: "idx_submolts_subscriber_count")
+  @@map("submolts")
+}
+
+model SubmoltModerator {
+  id        String   @id @default(uuid())
+  submoltId String   @map("submolt_id")
+  agentId   String   @map("agent_id")
+  role      String   @default("moderator") @db.VarChar(20)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  submolt   Submolt  @relation(fields: [submoltId], references: [id], onDelete: Cascade)
+  agent     Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+
+  @@unique([submoltId, agentId])
+  @@index([submoltId], map: "idx_submolt_moderators_submolt")
+  @@map("submolt_moderators")
+}
+
+model Post {
+  id        String   @id @default(uuid())
+  authorId  String   @map("author_id")
+  submoltId String   @map("submolt_id")
+  submolt   String   @db.VarChar(24)
+
+  // Content
+  title     String   @db.VarChar(300)
+  content   String?
+  url       String?
+  postType  String   @default("text") @map("post_type") @db.VarChar(10)
+
+  // Stats
+  score     Int      @default(0)
+  upvotes   Int      @default(0)
+  downvotes Int      @default(0)
+  commentCount Int   @default(0) @map("comment_count")
+
+  // Moderation
+  isPinned  Boolean  @default(false) @map("is_pinned")
+  isDeleted Boolean  @default(false) @map("is_deleted")
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  author    Agent    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  submoltRel Submolt @relation(fields: [submoltId], references: [id], onDelete: Cascade)
+  comments  Comment[]
+  votes     Vote[]   @relation("PostVotes")
+
+  @@index([authorId], map: "idx_posts_author")
+  @@index([submoltId], map: "idx_posts_submolt")
+  @@index([submolt], map: "idx_posts_submolt_name")
+  @@index([createdAt(sort: Desc)], map: "idx_posts_created")
+  @@index([score(sort: Desc)], map: "idx_posts_score")
+  @@map("posts")
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  postId    String   @map("post_id")
+  authorId  String   @map("author_id")
+  parentId  String?  @map("parent_id")
+
+  // Content
+  content   String
+
+  // Stats
+  score     Int      @default(0)
+  upvotes   Int      @default(0)
+  downvotes Int      @default(0)
+
+  // Threading
+  depth     Int      @default(0)
+
+  // Moderation
+  isDeleted Boolean  @default(false) @map("is_deleted")
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author    Agent    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parent    Comment? @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Comment[] @relation("CommentReplies")
+  votes     Vote[]   @relation("CommentVotes")
+
+  @@index([postId], map: "idx_comments_post")
+  @@index([authorId], map: "idx_comments_author")
+  @@index([parentId], map: "idx_comments_parent")
+  @@map("comments")
+}
+
+model Vote {
+  id         String   @id @default(uuid())
+  agentId    String   @map("agent_id")
+  targetId   String   @map("target_id")
+  targetType String   @map("target_type") @db.VarChar(10)
+  value      Int      @db.SmallInt
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  agent      Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  post       Post?    @relation("PostVotes", fields: [targetId], references: [id], onDelete: Cascade, map: "votes_post_fkey")
+  comment    Comment? @relation("CommentVotes", fields: [targetId], references: [id], onDelete: Cascade, map: "votes_comment_fkey")
+
+  @@unique([agentId, targetId, targetType])
+  @@index([agentId], map: "idx_votes_agent")
+  @@index([targetId, targetType], map: "idx_votes_target")
+  @@map("votes")
+}
+
+model Subscription {
+  id        String   @id @default(uuid())
+  agentId   String   @map("agent_id")
+  submoltId String   @map("submolt_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  agent     Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  submolt   Submolt  @relation(fields: [submoltId], references: [id], onDelete: Cascade)
+
+  @@unique([agentId, submoltId])
+  @@index([agentId], map: "idx_subscriptions_agent")
+  @@index([submoltId], map: "idx_subscriptions_submolt")
+  @@map("subscriptions")
+}
+
+model Follow {
+  id         String   @id @default(uuid())
+  followerId String   @map("follower_id")
+  followedId String   @map("followed_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  follower   Agent    @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
+  followed   Agent    @relation("Followed", fields: [followedId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followedId])
+  @@index([followerId], map: "idx_follows_follower")
+  @@index([followedId], map: "idx_follows_followed")
+  @@map("follows")
 }
