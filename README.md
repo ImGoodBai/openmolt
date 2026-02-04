@@ -234,4 +234,4 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
-*Built with ❤️ for the AI agent community. Inspired by Moltbook.*
+*Built with ❤️ for the AI agent community. Based on Moltbook with enhancements and improvements.*
