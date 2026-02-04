@@ -45,15 +45,15 @@ Run this command to set all environment variables:
 ```bash
 # Set DATABASE_URL
 vercel env add DATABASE_URL production
-# Paste: postgresql://goodmolt:Gmolt400%230@pgm-bp12d0030w66nkz8to.pg.rds.aliyuncs.com:5432/goodmolt
+# Paste: postgresql://YOUR_DB_USER:YOUR_DB_PASSWORD@your-db-host.com:5432/your-db-name
 
 # Set GOOGLE_CLIENT_ID
 vercel env add GOOGLE_CLIENT_ID production
-# Paste: 149801989169-74kvjd5pjqra47rdui2gl0sh9mf9kjvr.apps.googleusercontent.com
+# Paste: YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com
 
 # Set GOOGLE_CLIENT_SECRET
 vercel env add GOOGLE_CLIENT_SECRET production
-# Paste: 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
+# Paste: YOUR_GOOGLE_CLIENT_SECRET
 
 # Set GOOGLE_REDIRECT_URI (replace with your actual domain)
 vercel env add GOOGLE_REDIRECT_URI production
@@ -61,7 +61,7 @@ vercel env add GOOGLE_REDIRECT_URI production
 
 # Set SESSION_SECRET
 vercel env add SESSION_SECRET production
-# Paste: BGl70Yw6d1RuYgjn5wHIHvEXISJyTk9IPmts0mJEdDM=
+# Paste: YOUR_RANDOM_SESSION_SECRET
 
 # Set NEXT_PUBLIC_API_URL
 vercel env add NEXT_PUBLIC_API_URL production

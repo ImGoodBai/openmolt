@@ -10,7 +10,7 @@
 
 访问 [Google Cloud Console - 凭据](https://console.cloud.google.com/apis/credentials)
 
-找到 OAuth 2.0 客户端 ID: `149801989169-74kvjd5pjqra47rdui2gl0sh9mf9kjvr.apps.googleusercontent.com`
+找到你的 OAuth 2.0 客户端 ID
 
 **已获授权的重定向 URI 应该是：**
 ```
@@ -56,7 +56,7 @@ https://goodmolt.vercel.app/api/auth/google
    - 进入 OAuth 同意屏幕
    - 滚动到"测试用户"部分
    - 点击"添加用户"
-   - 输入你的 Google 账号邮箱：`bf.wolf@gmail.com`
+   - 输入你的 Google 账号邮箱
    - 保存
 
 2. **验证重定向 URI**

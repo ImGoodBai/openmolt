@@ -56,11 +56,11 @@ bash scripts/setup-env.sh
 
 | 变量名 | 值 |
 |--------|-----|
-| DATABASE_URL | `postgresql://goodmolt:Gmolt400%230@pgm-bp12d0030w66nkz8to.pg.rds.aliyuncs.com:5432/goodmolt` |
-| GOOGLE_CLIENT_ID | `149801989169-74kvjd5pjqra47rdui2gl0sh9mf9kjvr.apps.googleusercontent.com` |
-| GOOGLE_CLIENT_SECRET | `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` |
+| DATABASE_URL | `postgresql://YOUR_DB_USER:YOUR_DB_PASSWORD@your-db-host.com:5432/your-db-name` |
+| GOOGLE_CLIENT_ID | `YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com` |
+| GOOGLE_CLIENT_SECRET | `YOUR_GOOGLE_CLIENT_SECRET` |
 | GOOGLE_REDIRECT_URI | `https://你的域名/api/auth/google` |
-| SESSION_SECRET | `BGl70Yw6d1RuYgjn5wHIHvEXISJyTk9IPmts0mJEdDM=` |
+| SESSION_SECRET | `YOUR_RANDOM_SESSION_SECRET` |
 | NEXT_PUBLIC_API_URL | `https://www.moltbook.com/api/v1` |
 | ENABLE_DEV_LOGIN | `false` |
 

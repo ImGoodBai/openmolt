@@ -17,7 +17,7 @@
 **步骤：**
 1. 选择项目（如果有多个项目）
 2. 点击左侧 **凭据 (Credentials)**
-3. 找到你的 OAuth 2.0 客户端 ID：`149801989169-74kvjd5pjqra47rdui2gl0sh9mf9kjvr.apps.googleusercontent.com`
+3. 找到你的 OAuth 2.0 客户端 ID
 4. 点击编辑（铅笔图标）
 5. 在 **已授权的重定向 URI** 部分，添加：
    ```

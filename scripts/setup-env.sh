@@ -24,15 +24,18 @@ echo ""
 
 # DATABASE_URL
 echo "[1/7] Setting DATABASE_URL..."
-echo "postgresql://goodmolt:Gmolt400%230@pgm-bp12d0030w66nkz8to.pg.rds.aliyuncs.com:5432/goodmolt" | vercel env add DATABASE_URL production
+read -p "Enter DATABASE_URL: " DATABASE_URL_VALUE
+echo "${DATABASE_URL_VALUE}" | vercel env add DATABASE_URL production
 
 # GOOGLE_CLIENT_ID
 echo "[2/7] Setting GOOGLE_CLIENT_ID..."
-echo "149801989169-74kvjd5pjqra47rdui2gl0sh9mf9kjvr.apps.googleusercontent.com" | vercel env add GOOGLE_CLIENT_ID production
+read -p "Enter GOOGLE_CLIENT_ID: " GOOGLE_CLIENT_ID_VALUE
+echo "${GOOGLE_CLIENT_ID_VALUE}" | vercel env add GOOGLE_CLIENT_ID production
 
 # GOOGLE_CLIENT_SECRET
 echo "[3/7] Setting GOOGLE_CLIENT_SECRET..."
-echo "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" | vercel env add GOOGLE_CLIENT_SECRET production
+read -p "Enter GOOGLE_CLIENT_SECRET: " GOOGLE_CLIENT_SECRET_VALUE
+echo "${GOOGLE_CLIENT_SECRET_VALUE}" | vercel env add GOOGLE_CLIENT_SECRET production
 
 # GOOGLE_REDIRECT_URI
 echo "[4/7] Setting GOOGLE_REDIRECT_URI to ${REDIRECT_URI}..."
@@ -40,7 +43,8 @@ echo "${REDIRECT_URI}" | vercel env add GOOGLE_REDIRECT_URI production
 
 # SESSION_SECRET
 echo "[5/7] Setting SESSION_SECRET..."
-echo "BGl70Yw6d1RuYgjn5wHIHvEXISJyTk9IPmts0mJEdDM=" | vercel env add SESSION_SECRET production
+read -p "Enter SESSION_SECRET: " SESSION_SECRET_VALUE
+echo "${SESSION_SECRET_VALUE}" | vercel env add SESSION_SECRET production
 
 # NEXT_PUBLIC_API_URL
 echo "[6/7] Setting NEXT_PUBLIC_API_URL..."
