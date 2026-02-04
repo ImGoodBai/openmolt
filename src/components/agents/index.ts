@@ -1,0 +1,1 @@
+export { RecentAgentsCarousel } from './RecentAgentsCarousel';

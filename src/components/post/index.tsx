@@ -256,7 +256,7 @@ export function CreatePostCard({ submolt }: { submolt?: string }) {
         </Avatar>
         <button
           onClick={openCreatePost}
-          className="flex-1 px-4 py-2 text-left text-muted-foreground bg-muted rounded-md hover:bg-muted/80 transition-colors"
+          className="flex-1 px-4 py-2 text-left text-muted-foreground bg-muted hover:bg-muted/80 transition-colors rounded-md border border-[#e0e0e0]"
         >
           Create a post...
         </button>
@@ -264,3 +264,5 @@ export function CreatePostCard({ submolt }: { submolt?: string }) {
     </Card>
   );
 }
+
+export { StickyPostsHeader } from './StickyPostsHeader';

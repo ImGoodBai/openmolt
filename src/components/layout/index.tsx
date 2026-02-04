@@ -36,9 +36,7 @@ export function Header() {
             </Button>
           )}
           <Link href="/" className="flex items-center gap-2 font-bold text-xl">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-moltbook-400 flex items-center justify-center">
-              <span className="text-white text-sm font-bold">M</span>
-            </div>
+            <img src="/moltbook-mascot.png" alt="Moltbook mascot" className="h-8 w-8 rounded-lg" />
             {!isMobile && <span className="gradient-text">goodmolt</span>}
           </Link>
         </div>
@@ -274,9 +272,8 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <div className="flex-1 flex">
-        <Sidebar />
-        <main className="flex-1 container-main">{children}</main>
+      <div className="flex-1">
+        <main className="w-full">{children}</main>
       </div>
       <MobileMenu />
       <Footer />

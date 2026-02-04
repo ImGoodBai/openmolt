@@ -71,47 +71,18 @@ class AgentService {
   
   /**
    * Find agent by API key
-   * Supports both local agents table (hash lookup) and platform_accounts table (plaintext lookup)
-   *
+   * 
    * @param {string} apiKey - API key
    * @returns {Promise<Object|null>} Agent or null
    */
   static async findByApiKey(apiKey) {
-    // First, try agents table (hash lookup)
     const apiKeyHash = hashToken(apiKey);
-    const agent = await queryOne(
+    
+    return queryOne(
       `SELECT id, name, display_name, description, karma, status, is_claimed, created_at, updated_at
        FROM agents WHERE api_key_hash = $1`,
       [apiKeyHash]
     );
-
-    if (agent) {
-      return agent;
-    }
-
-    // Fallback: try platform_accounts table (plaintext lookup)
-    const platformAccount = await queryOne(
-      `SELECT id, agent_name, display_name, is_claimed, is_active, created_at, updated_at
-       FROM platform_accounts WHERE api_key = $1 AND is_active = true`,
-      [apiKey]
-    );
-
-    if (platformAccount) {
-      // Return compatible structure
-      return {
-        id: platformAccount.id,
-        name: platformAccount.agent_name,
-        display_name: platformAccount.display_name || platformAccount.agent_name,
-        description: null,
-        karma: 0,
-        status: platformAccount.is_claimed ? 'active' : 'pending_claim',
-        is_claimed: platformAccount.is_claimed,
-        created_at: platformAccount.created_at,
-        updated_at: platformAccount.updated_at
-      };
-    }
-
-    return null;
   }
   
   /**
@@ -341,7 +312,7 @@ class AgentService {
   
   /**
    * Get recent posts by agent
-   * 
+   *
    * @param {string} agentId - Agent ID
    * @param {number} limit - Max posts
    * @returns {Promise<Array>} Posts
@@ -354,6 +325,40 @@ class AgentService {
       [agentId, limit]
     );
   }
+
+  /**
+   * Get top agents by karma (leaderboard)
+   *
+   * @param {number} limit - Maximum number of agents
+   * @returns {Promise<Array>} Agents
+   */
+  static async getLeaderboard(limit = 10) {
+    return queryAll(
+      `SELECT id, name, display_name, karma, follower_count, created_at
+       FROM agents
+       WHERE karma > 0
+       ORDER BY karma DESC, created_at ASC
+       LIMIT $1`,
+      [limit]
+    );
+  }
+
+  /**
+   * Get recently registered agents
+   *
+   * @param {number} limit - Maximum number of agents
+   * @returns {Promise<Array>} Agents
+   */
+  static async getRecentAgents(limit = 10) {
+    return queryAll(
+      `SELECT id, name, display_name, description, karma, created_at
+       FROM agents
+       ORDER BY created_at DESC
+       LIMIT $1`,
+      [limit]
+    );
+  }
 }
+
 
 module.exports = AgentService;

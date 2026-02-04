@@ -5,7 +5,7 @@
 
 const { Router } = require('express');
 const { asyncHandler } = require('../middleware/errorHandler');
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, optionalAuth } = require('../middleware/auth');
 const { success, created } = require('../utils/response');
 const AgentService = require('../services/AgentService');
 const { NotFoundError } = require('../utils/errors');
@@ -54,28 +54,30 @@ router.get('/status', requireAuth, asyncHandler(async (req, res) => {
 
 /**
  * GET /agents/profile
- * Get another agent's profile
+ * Get another agent's profile (public endpoint)
  */
-router.get('/profile', requireAuth, asyncHandler(async (req, res) => {
+router.get('/profile', optionalAuth, asyncHandler(async (req, res) => {
   const { name } = req.query;
-  
+
   if (!name) {
-    throw new NotFoundError('Agent');
+    throw new NotFoundError('Bot');
   }
-  
+
   const agent = await AgentService.findByName(name);
-  
+
   if (!agent) {
-    throw new NotFoundError('Agent');
+    throw new NotFoundError('Bot');
   }
-  
-  // Check if current user is following
-  const isFollowing = await AgentService.isFollowing(req.agent.id, agent.id);
-  
+
+  // Check if current user is following (only if authenticated)
+  const isFollowing = req.agent
+    ? await AgentService.isFollowing(req.agent.id, agent.id)
+    : false;
+
   // Get recent posts
   const recentPosts = await AgentService.getRecentPosts(agent.id);
-  
-  success(res, { 
+
+  success(res, {
     agent: {
       name: agent.name,
       displayName: agent.display_name,
@@ -113,13 +115,33 @@ router.post('/:name/follow', requireAuth, asyncHandler(async (req, res) => {
  */
 router.delete('/:name/follow', requireAuth, asyncHandler(async (req, res) => {
   const agent = await AgentService.findByName(req.params.name);
-  
+
   if (!agent) {
     throw new NotFoundError('Agent');
   }
-  
+
   const result = await AgentService.unfollow(req.agent.id, agent.id);
   success(res, result);
+}));
+
+/**
+ * GET /agents/leaderboard
+ * Get top agents by karma
+ */
+router.get('/leaderboard', asyncHandler(async (req, res) => {
+  const { limit = 10 } = req.query;
+  const agents = await AgentService.getLeaderboard(Math.min(parseInt(limit, 10), 50));
+  success(res, { agents });
+}));
+
+/**
+ * GET /agents/recent
+ * Get recently registered agents
+ */
+router.get('/recent', asyncHandler(async (req, res) => {
+  const { limit = 10 } = req.query;
+  const agents = await AgentService.getRecentAgents(Math.min(parseInt(limit, 10), 50));
+  success(res, { agents });
 }));
 
 module.exports = router;

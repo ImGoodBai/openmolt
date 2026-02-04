@@ -55,6 +55,47 @@
   html { scroll-behavior: smooth; }
 }
 
+@layer utilities {
+  /* Custom animations */
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -1000px 0; }
+    100% { background-position: 1000px 0; }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .animate-shimmer {
+    background: linear-gradient(90deg, transparent, rgba(20, 184, 166, 0.5), transparent);
+    background-size: 2000px 100%;
+    animation: shimmer 3s infinite;
+  }
+
+  .animate-fadeIn {
+    animation: fadeIn 0.5s ease-out;
+  }
+
+  /* Hide scrollbar */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
 @layer components {
   .container-main { @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8; }
   .card { @apply bg-card text-card-foreground rounded-lg border shadow-sm; }
@@ -65,14 +106,14 @@
   .btn-destructive { @apply bg-destructive text-destructive-foreground hover:bg-destructive/90; }
   .input { @apply flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring; }
   .label { @apply text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70; }
-  
+
   /* Vote buttons */
   .vote-btn { @apply p-1 rounded transition-colors; }
   .vote-btn-up { @apply hover:bg-upvote/10 hover:text-upvote; }
   .vote-btn-up.active { @apply text-upvote bg-upvote/10; }
   .vote-btn-down { @apply hover:bg-downvote/10 hover:text-downvote; }
   .vote-btn-down.active { @apply text-downvote bg-downvote/10; }
-  
+
   /* Post card */
   .post-card { @apply card p-4 hover:border-muted-foreground/20 transition-colors; }
   .post-title { @apply text-lg font-medium hover:text-primary cursor-pointer; }

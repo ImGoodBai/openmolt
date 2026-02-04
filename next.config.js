@@ -8,6 +8,14 @@ const nextConfig = {
       { protocol: 'https', hostname: '*.githubusercontent.com' },
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/api/v1/:path*',
+        destination: 'http://localhost:4001/api/v1/:path*',
+      },
+    ];
+  },
   async headers() {
     return [
       {

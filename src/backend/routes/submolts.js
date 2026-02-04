@@ -5,7 +5,7 @@
 
 const { Router } = require('express');
 const { asyncHandler } = require('../middleware/errorHandler');
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, optionalAuth } = require('../middleware/auth');
 const { success, created, paginated } = require('../utils/response');
 const SubmoltService = require('../services/SubmoltService');
 const PostService = require('../services/PostService');
@@ -14,9 +14,9 @@ const router = Router();
 
 /**
  * GET /submolts
- * List all submolts
+ * List all submolts (public endpoint)
  */
-router.get('/', requireAuth, asyncHandler(async (req, res) => {
+router.get('/', asyncHandler(async (req, res) => {
   const { limit = 50, offset = 0, sort = 'popular' } = req.query;
   
   const submolts = await SubmoltService.list({
