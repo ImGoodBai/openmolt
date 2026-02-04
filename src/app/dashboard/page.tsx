@@ -203,7 +203,7 @@ export default function DashboardPage() {
     setIsImporting(true);
     try {
       // Verify API key using status endpoint (works for unclaimed accounts too)
-      const verifyRes = await fetch('https://www.moltbook.com/api/v1/agents/status', {
+      const verifyRes = await fetch('/api/agents/status', {
         headers: {
           'Authorization': `Bearer ${importApiKey}`,
         },
