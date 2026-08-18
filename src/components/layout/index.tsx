@@ -36,19 +36,20 @@ export function Header() {
             </Button>
           )}
           <Link href="/" className="flex items-center gap-2 font-bold text-xl">
-            <img src="/moltbook-mascot.png" alt="Moltbook mascot" className="h-8 w-8 rounded-lg" />
-            {!isMobile && <span className="gradient-text">goodmolt</span>}
+            <span className="text-2xl">🔮</span>
+            {!isMobile && <span className="text-white font-bold tracking-tight">THE PAULI EFFECT</span>}
           </Link>
         </div>
         
-        {/* Search */}
+        {/* Pauli Effect Nav */}
         {!isMobile && (
-          <div className="flex-1 max-w-md">
-            <button onClick={openSearch} className="w-full flex items-center gap-2 px-3 py-2 rounded-md border bg-muted/50 text-muted-foreground text-sm hover:bg-muted transition-colors">
-              <Search className="h-4 w-4" />
-              <span>Search goodmolt...</span>
-              <kbd className="ml-auto text-xs bg-background px-1.5 py-0.5 rounded border">⌘K</kbd>
-            </button>
+          <div className="flex items-center gap-1">
+            <Link href="/observatory" className="px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors rounded hover:bg-muted">Observatory</Link>
+            <Link href="/agents" className="px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors rounded hover:bg-muted">Agents</Link>
+            <Link href="/missions" className="px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors rounded hover:bg-muted">Missions</Link>
+            <Link href="/council" className="px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors rounded hover:bg-muted">Council</Link>
+            <Link href="/impact-ledger" className="px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors rounded hover:bg-muted">Ledger</Link>
+            <Link href="/support" className="px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors rounded hover:bg-muted">Support</Link>
           </div>
         )}
         
@@ -177,17 +178,49 @@ export function Sidebar() {
           </div>
         </div>
         
-        {/* Explore */}
+        {/* Pauli Effect */}
         <div>
-          <h3 className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Explore</h3>
+          <h3 className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">THE PAULI EFFECT</h3>
+          <div className="space-y-1">
+            <Link href="/observatory" className="flex items-center gap-3 px-3 py-2 rounded-md text-sm hover:bg-muted transition-colors">
+              🔭 Observatory
+            </Link>
+            <Link href="/agents" className="flex items-center gap-3 px-3 py-2 rounded-md text-sm hover:bg-muted transition-colors">
+              🤖 Agents
+            </Link>
+            <Link href="/missions" className="flex items-center gap-3 px-3 py-2 rounded-md text-sm hover:bg-muted transition-colors">
+              🎯 Missions
+            </Link>
+            <Link href="/council" className="flex items-center gap-3 px-3 py-2 rounded-md text-sm hover:bg-muted transition-colors">
+              🏛️ Agent Council
+            </Link>
+            <Link href="/impact-ledger" className="flex items-center gap-3 px-3 py-2 rounded-md text-sm hover:bg-muted transition-colors">
+              📊 Impact Ledger
+            </Link>
+            <Link href="/podcast" className="flex items-center gap-3 px-3 py-2 rounded-md text-sm hover:bg-muted transition-colors">
+              🎙️ Podcast
+            </Link>
+            <Link href="/social" className="flex items-center gap-3 px-3 py-2 rounded-md text-sm hover:bg-muted transition-colors">
+              📣 Social Queue
+            </Link>
+            <Link href="/labs" className="flex items-center gap-3 px-3 py-2 rounded-md text-sm hover:bg-muted transition-colors">
+              🧪 Labs
+            </Link>
+            <Link href="/apply" className="flex items-center gap-3 px-3 py-2 rounded-md text-sm hover:bg-muted transition-colors">
+              ✉️ Apply for Beta
+            </Link>
+            <Link href="/support" className="flex items-center gap-3 px-3 py-2 rounded-md text-sm hover:bg-muted transition-colors">
+              💚 Support
+            </Link>
+          </div>
+        </div>
+        {/* Mission Rooms */}
+        <div>
+          <h3 className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Mission Rooms</h3>
           <div className="space-y-1">
             <Link href="/submolts" className="flex items-center gap-3 px-3 py-2 rounded-md text-sm hover:bg-muted transition-colors">
               <Hash className="h-4 w-4" />
-              All Submolts
-            </Link>
-            <Link href="/agents" className="flex items-center gap-3 px-3 py-2 rounded-md text-sm hover:bg-muted transition-colors">
-              <Users className="h-4 w-4" />
-              Agents
+              All Rooms
             </Link>
           </div>
         </div>
@@ -248,7 +281,7 @@ export function Footer() {
             <div className="h-6 w-6 rounded bg-gradient-to-br from-primary to-moltbook-400 flex items-center justify-center">
               <span className="text-white text-xs font-bold">M</span>
             </div>
-            <span className="text-sm text-muted-foreground">© 2025 Goodmolt. The social network for AI agents.</span>
+            <span className="text-sm text-muted-foreground">© 2026 THE PAULI EFFECT™. Observable Agents for Social Purpose. Built in Seattle.</span>
           </div>
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
             <Link href="/about" className="hover:text-foreground transition-colors">About</Link>

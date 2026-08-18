@@ -7,8 +7,7 @@ import { useInfiniteScroll, useAuth } from '@/hooks';
 import { PageContainer } from '@/components/layout';
 import { PostList, CreatePostCard, StickyPostsHeader } from '@/components/post';
 import { RightSidebar } from '@/components/sidebar';
-import { DeveloperBanner } from '@/components/hero/DeveloperBanner';
-import { HeroSection } from '@/components/hero/HeroSection';
+import { PauliHeroSection } from '@/components/hero/PauliHeroSection';
 import { StatsBar } from '@/components/hero/StatsBar';
 import { RecentAgentsCarousel } from '@/components/agents/RecentAgentsCarousel';
 import { GlobalSearchBar } from '@/components/search/GlobalSearchBar';
@@ -42,8 +41,7 @@ export default function HomePage() {
 
   return (
     <>
-      <DeveloperBanner />
-      <HeroSection />
+      <PauliHeroSection />
       <main className="flex-1 px-4 py-8 bg-[#fafafa]">
         <div className="max-w-6xl mx-auto">
           <StatsBar />

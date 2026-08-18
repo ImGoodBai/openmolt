@@ -271,3 +271,158 @@ model Follow {
   @@index([followedId], map: "idx_follows_followed")
   @@map("follows")
 }
+
+
+// ============================================
+// THE PAULI EFFECT — OBSERVABLE AGENTS MODELS
+// ============================================
+
+model PauliAgentProfile {
+  id                String   @id @default(uuid())
+  slug              String   @unique
+  name              String
+  role              String
+  tagline           String
+  description       String?
+  avatarUrl         String?  @map("avatar_url")
+  avatarEmoji       String?  @map("avatar_emoji")
+  status            String   @default("active") @db.VarChar(20)
+  contributionScore Int      @default(0) @map("contribution_score")
+  safetyLevel       String   @default("public_safe") @map("safety_level") @db.VarChar(30)
+  toolsAllowed      Json?    @map("tools_allowed")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@map("pauli_agent_profiles")
+}
+
+model Mission {
+  id          String   @id @default(uuid())
+  slug        String   @unique
+  title       String
+  summary     String
+  category    String   @db.VarChar(40)
+  status      String   @default("active") @db.VarChar(20)
+  visibility  String   @default("public") @db.VarChar(10)
+  agentContributors Json? @map("agent_contributors")
+  tags        Json?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  events         MissionEvent[]
+  councilSessions CouncilSession[]
+
+  @@index([slug])
+  @@index([status])
+  @@map("missions")
+}
+
+model MissionEvent {
+  id              String   @id @default(uuid())
+  missionId       String   @map("mission_id")
+  agentSlug       String   @map("agent_slug") @db.VarChar(40)
+  actionType      String   @map("action_type") @db.VarChar(20)
+  publicSummary   String   @map("public_summary")
+  privateTraceId  String?  @map("private_trace_id")
+  visibility      String   @default("public") @db.VarChar(10)
+  approvalStatus  String   @default("not_needed") @map("approval_status") @db.VarChar(20)
+  redactionStatus String   @default("passed") @map("redaction_status") @db.VarChar(20)
+  costUsd         Decimal? @map("cost_usd") @db.Decimal(10, 4)
+  impactTags      Json?    @map("impact_tags")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  mission   Mission  @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  sources   SourceCitation[]
+  artifacts PublicArtifact[]
+
+  @@index([missionId], map: "idx_mission_events_mission")
+  @@index([agentSlug], map: "idx_mission_events_agent")
+  @@index([createdAt(sort: Desc)], map: "idx_mission_events_created")
+  @@map("mission_events")
+}
+
+model SourceCitation {
+  id         String   @id @default(uuid())
+  eventId    String?  @map("event_id")
+  title      String
+  url        String?
+  sourceType String   @map("source_type") @db.VarChar(20)
+  summary    String?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  event MissionEvent? @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([eventId], map: "idx_source_citations_event")
+  @@map("source_citations")
+}
+
+model PublicArtifact {
+  id           String   @id @default(uuid())
+  eventId      String?  @map("event_id")
+  title        String
+  artifactType String   @map("artifact_type") @db.VarChar(30)
+  url          String?
+  summary      String?
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  event MissionEvent? @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([eventId], map: "idx_public_artifacts_event")
+  @@map("public_artifacts")
+}
+
+model CouncilSession {
+  id                  String   @id @default(uuid())
+  missionId           String?  @map("mission_id")
+  topic               String
+  publicSummary       String   @map("public_summary")
+  recommendations     Json?
+  participatingAgents Json     @map("participating_agents")
+  keyQuestions        Json?    @map("key_questions")
+  sources             Json?
+  dissentingViews     Json?    @map("dissenting_views")
+  nextMission         String?  @map("next_mission")
+  status              String   @default("published") @db.VarChar(20)
+  createdAt           DateTime @default(now()) @map("created_at")
+  publishedAt         DateTime? @map("published_at")
+
+  mission Mission? @relation(fields: [missionId], references: [id])
+
+  @@index([status], map: "idx_council_sessions_status")
+  @@map("council_sessions")
+}
+
+model SocialDispatch {
+  id          String   @id @default(uuid())
+  missionSlug String?  @map("mission_slug") @db.VarChar(60)
+  agentSlug   String   @map("agent_slug") @db.VarChar(40)
+  platform    String   @db.VarChar(20)
+  content     String
+  status      String   @default("draft") @db.VarChar(20)
+  publicUrl   String?  @map("public_url")
+  approvedBy  String?  @map("approved_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+  approvedAt  DateTime? @map("approved_at")
+  scheduledAt DateTime? @map("scheduled_at")
+
+  @@index([status], map: "idx_social_dispatch_status")
+  @@index([agentSlug], map: "idx_social_dispatch_agent")
+  @@map("social_dispatches")
+}
+
+model BetaApplication {
+  id           String   @id @default(uuid())
+  name         String
+  organization String
+  city         String
+  mission      String
+  orgType      String   @map("org_type") @db.VarChar(30)
+  website      String?
+  email        String
+  helpWith     String   @map("help_with")
+  status       String   @default("pending") @db.VarChar(20)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@index([status], map: "idx_beta_applications_status")
+  @@map("beta_applications")
+}
